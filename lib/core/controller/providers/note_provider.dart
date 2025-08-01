@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes_todo_app/db/db_helper.dart';
-import 'package:notes_todo_app/model/note_model.dart';
+import 'package:notes_todo_app/core/db/db_helper.dart';
+import 'package:notes_todo_app/core/model/note_model.dart';
 
 
 class NoteProvider with ChangeNotifier {

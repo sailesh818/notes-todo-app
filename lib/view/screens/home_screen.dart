@@ -1,13 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:notes_todo_app/model/note_model.dart';
-import 'package:notes_todo_app/services/drive_services.dart';
+import 'package:notes_todo_app/core/model/note_model.dart';
+import 'package:notes_todo_app/core/services/drive_services.dart';
 import 'package:provider/provider.dart';
-import '../providers/note_provider.dart';
+import '../../../core/controller/providers/note_provider.dart';
 import 'add_edit_note_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final Set<int> selectedIndexes = {};
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +25,24 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Notes'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete Selected',
+            onPressed: () async {
+              final idsToDelete = selectedIndexes
+                  .map((index) => provider.notes[index].id)
+                  .whereType<int>()
+                  .toList();
+
+              for (final id in idsToDelete) {
+                await provider.deleteNote(id);
+              }
+
+              setState(() {
+                selectedIndexes.clear();
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.backup),
             tooltip: 'Backup to Drive',
@@ -73,25 +98,30 @@ class HomeScreen extends StatelessWidget {
           if (provider.notes.isEmpty) {
             return const Center(child: Text('No notes found.'));
           }
+
           return ListView.builder(
+            
             itemCount: provider.notes.length,
             itemBuilder: (context, index) {
               final note = provider.notes[index];
+              final isSelected = selectedIndexes.contains(index);
+
               return ListTile(
                 title: Text(note.title),
                 subtitle: Text(note.timestamp),
+                tileColor: isSelected ? Colors.blue.shade100 : null,
+                trailing: isSelected
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddEditNoteScreen(note: note),
-                    ),
-                  );
+                  setState(() {
+                    if (isSelected) {
+                      selectedIndexes.remove(index);
+                    } else {
+                      selectedIndexes.add(index);
+                    }
+                  });
                 },
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => provider.deleteNote(note.id!),
-                ),
               );
             },
           );

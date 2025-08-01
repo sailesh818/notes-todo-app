@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:notes_todo_app/model/note_model.dart';
+import 'package:notes_todo_app/core/model/note_model.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/note_provider.dart';
+import '../../../core/controller/providers/note_provider.dart';
 
 class AddEditNoteScreen extends StatefulWidget {
   final Note? note;
@@ -78,6 +78,18 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                 decoration: const InputDecoration(labelText: 'Content'),
               ),
             ),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: _saveNote,
+              child: Container(
+                width: 150,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(15)
+                ),
+                child: Center(child: Text("Save", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))),
+            )
           ],
         ),
       ),

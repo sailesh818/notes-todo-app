@@ -1,4 +1,4 @@
-import 'package:notes_todo_app/model/note_model.dart';
+import 'package:notes_todo_app/core/model/note_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
