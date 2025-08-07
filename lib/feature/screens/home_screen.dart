@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:notes_todo_app/core/model/note_model.dart';
+import 'package:notes_todo_app/feature/providers/note_provider.dart';
 import 'package:notes_todo_app/core/services/drive_services.dart';
 import 'package:provider/provider.dart';
-import '../../../core/controller/providers/note_provider.dart';
 import 'add_edit_note_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,8 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Set<int> selectedIndexes = {};
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<NoteProvider>(context);
@@ -25,24 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('My Notes'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            tooltip: 'Delete Selected',
-            onPressed: () async {
-              final idsToDelete = selectedIndexes
-                  .map((index) => provider.notes[index].id)
-                  .whereType<int>()
-                  .toList();
-
-              for (final id in idsToDelete) {
-                await provider.deleteNote(id);
-              }
-
-              setState(() {
-                selectedIndexes.clear();
-              });
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.backup),
             tooltip: 'Backup to Drive',
@@ -100,27 +80,20 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           return ListView.builder(
-            
             itemCount: provider.notes.length,
             itemBuilder: (context, index) {
               final note = provider.notes[index];
-              final isSelected = selectedIndexes.contains(index);
 
               return ListTile(
                 title: Text(note.title),
                 subtitle: Text(note.timestamp),
-                tileColor: isSelected ? Colors.blue.shade100 : null,
-                trailing: isSelected
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
                 onTap: () {
-                  setState(() {
-                    if (isSelected) {
-                      selectedIndexes.remove(index);
-                    } else {
-                      selectedIndexes.add(index);
-                    }
-                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddEditNoteScreen(note: note),
+                    ),
+                  );
                 },
               );
             },
@@ -131,7 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AddEditNoteScreen()),
+            MaterialPageRoute(
+              builder: (_) => const AddEditNoteScreen(),
+            ),
           );
         },
         child: const Icon(Icons.add),
